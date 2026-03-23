@@ -1,0 +1,26 @@
+# WearWisely - Backend Dependencies
+# Generated from .venv (Python environment)
+
+# Deep Learning
+tensorflow==2.16.2
+keras==3.13.2
+
+# Web Framework
+fastapi==0.129.0
+uvicorn==0.41.0
+python-multipart==0.0.22
+starlette==0.52.1
+
+# ML / Data Science
+scikit-learn==1.8.0
+numpy==1.26.4
+scipy==1.17.0
+
+# Image Processing
+pillow==12.1.1
+
+# Data Validation
+pydantic==2.12.1
+
+# Utilities
+requests==2.32.5
