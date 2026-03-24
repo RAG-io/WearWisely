@@ -1,6 +1,69 @@
 /* ============================================================
    THEME TOKENS — dark (default) + light override
    ============================================================ */
+/* Ambient Background Orbs */
+.ambient-background {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.5;
+  animation: drift 20s infinite ease-in-out alternate;
+}
+
+.orb-1 {
+  top: -10%;
+  left: -10%;
+  width: 50vw;
+  height: 50vw;
+  background: rgba(0, 206, 201, 0.4);
+  animation-duration: 25s;
+}
+
+.orb-2 {
+  bottom: -20%;
+  right: -10%;
+  width: 60vw;
+  height: 60vw;
+  background: rgba(108, 92, 231, 0.35);
+  animation-duration: 30s;
+  animation-delay: -5s;
+}
+
+.orb-3 {
+  top: 40%;
+  left: 30%;
+  width: 40vw;
+  height: 40vw;
+  background: rgba(255, 118, 117, 0.25);
+  animation-duration: 20s;
+  animation-delay: -10s;
+}
+
+@keyframes drift {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate(8%, 12%) scale(1.15);
+  }
+
+  100% {
+    transform: translate(-8%, -5%) scale(0.9);
+  }
+}
+
 :root {
   --primary-color: #6c5ce7;
   --secondary-color: #a29bfe;
@@ -28,6 +91,17 @@
   --chip-border: rgba(108, 92, 231, 0.3);
   --chip-active-bg: var(--accent-gradient);
   --outfit-border: rgba(0, 206, 201, 0.25);
+
+  --dash-bg: rgba(20, 20, 30, 0.5);
+  --dash-blur: blur(40px);
+  --dash-shadow: 0 30px 60px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  --dash-border: rgba(255, 255, 255, 0.05);
+
+  --stage-bg: rgba(30, 30, 45, 0.6);
+  --stage-border: rgba(255, 255, 255, 0.1);
+
+  --drop-bg-adv: rgba(20, 20, 30, 0.4);
+  --drop-border-adv: rgba(255, 255, 255, 0.2);
 }
 
 [data-theme="light"] {
@@ -54,6 +128,17 @@
   --chip-bg: rgba(108, 92, 231, 0.08);
   --chip-border: rgba(108, 92, 231, 0.25);
   --outfit-border: rgba(0, 150, 145, 0.3);
+
+  --dash-bg: rgba(255, 255, 255, 0.6);
+  --dash-blur: blur(40px);
+  --dash-shadow: 0 20px 50px rgba(0, 0, 0, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  --dash-border: rgba(255, 255, 255, 0.8);
+
+  --stage-bg: rgba(255, 255, 255, 0.65);
+  --stage-border: rgba(255, 255, 255, 0.9);
+
+  --drop-bg-adv: rgba(255, 255, 255, 0.5);
+  --drop-border-adv: rgba(0, 0, 0, 0.1);
 }
 
 /* ============================================================
@@ -92,13 +177,23 @@ body {
    GLASS CARD
    ============================================================ */
 .glass-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(14px);
-  border: 1px solid var(--glass-border);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
   border-radius: 20px;
   padding: 2rem;
-  box-shadow: var(--shadow-lg);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* NEW: ultra-premium dashboard look */
+.advanced-dashboard {
+  background: var(--dash-bg);
+  backdrop-filter: var(--dash-blur);
+  -webkit-backdrop-filter: var(--dash-blur);
+  box-shadow: var(--dash-shadow);
+  border: 1px solid var(--dash-border);
 }
 
 /* ============================================================
@@ -638,27 +733,30 @@ h4 {
 
 .shop-btns {
   display: flex;
-  gap: 8px;
+  gap: 10px;
+  margin-top: auto;
 }
 
 .shop-btn {
   flex: 1;
   text-align: center;
   text-decoration: none;
-  padding: 8px 6px;
-  border-radius: 8px;
-  font-size: 0.82rem;
+  padding: 10px 14px;
+  border-radius: 50px;
+  font-size: 0.85rem;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  transition: opacity 0.2s, transform 0.15s;
+  gap: 6px;
+  transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
 .shop-btn:hover {
-  opacity: 0.88;
-  transform: translateY(-1px);
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.25);
+  opacity: 1 !important;
 }
 
 .shop-btn.amazon {
@@ -1049,4 +1147,257 @@ h4 {
   .glass-card>div[style*="grid-template-columns"] {
     grid-template-columns: 1fr !important;
   }
+}
+
+/* ============================================================
+   ADVANCED UI & VIRTUAL FITTING ROOM OVERHAUL
+   ============================================================ */
+
+/* Sleek Upload Dropzone */
+.dropzone.advanced {
+  border: 2px dashed var(--drop-border-adv);
+  background: var(--drop-bg-adv);
+  box-shadow: inset 0 0 40px rgba(0, 0, 0, 0.05), 0 8px 32px rgba(0, 0, 0, 0.1);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.dropzone.advanced:hover,
+.dropzone.advanced.dragging {
+  border-color: var(--primary-color);
+  box-shadow: inset 0 0 60px rgba(108, 92, 237, 0.15), 0 15px 40px rgba(108, 92, 237, 0.2);
+  transform: translateY(-4px);
+}
+
+/* AI Scanning Animation */
+.ai-scanner-overlay {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 0 30px rgba(108, 92, 237, 0.3);
+}
+
+.ai-scanner-overlay::after {
+  content: '';
+  position: absolute;
+  top: -10px;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: #00cec9;
+  box-shadow: 0 0 15px 4px rgba(0, 206, 201, 0.8), 0 0 30px 10px rgba(0, 206, 201, 0.4);
+  animation: laserScan 2s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+  opacity: 0.9;
+}
+
+@keyframes laserScan {
+  0% {
+    top: 0%;
+    transform: scaleX(0.9);
+  }
+
+  50% {
+    transform: scaleX(1);
+    opacity: 1;
+  }
+
+  100% {
+    top: calc(100% - 4px);
+    transform: scaleX(0.9);
+  }
+}
+
+/* Virtual Fitting Room Layout */
+.vfr-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+@media (min-width: 900px) {
+  .vfr-container {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+}
+
+/* Left Column: Recommendations */
+.vfr-left {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.item-slide-in {
+  opacity: 0;
+  animation: slideUpScale 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+@keyframes slideUpScale {
+  0% {
+    opacity: 0;
+    transform: translateY(40px) scale(0.95);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Right Column: Sticky Fitting Room */
+.vfr-right {
+  width: 100%;
+  position: sticky;
+  top: 90px;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+@media (min-width: 900px) {
+  .vfr-right {
+    width: 380px;
+    flex-shrink: 0;
+  }
+}
+
+.stage-card {
+  background: var(--stage-bg);
+  border: 1px solid var(--stage-border);
+  border-radius: 20px;
+  padding: 1rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  position: relative;
+  overflow: hidden;
+}
+
+.stage-header {
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--primary-color);
+  margin-bottom: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Body Type Dos & Donts */
+.dos-donts-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+@media (min-width: 600px) {
+  .dos-donts-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.list-box {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  padding: 1rem 1.2rem;
+  border-left: 4px solid #444;
+}
+
+.list-box.dos {
+  border-left-color: #00cec9;
+}
+
+.list-box.donts {
+  border-left-color: #ff7675;
+}
+
+.list-box h4 {
+  margin-top: 0;
+  margin-bottom: 0.8rem;
+  font-size: 1.05rem;
+}
+
+.list-box.dos h4 {
+  color: #00cec9;
+}
+
+.list-box.donts h4 {
+  color: #ff7675;
+}
+
+.list-box ul {
+  padding-left: 1.2rem;
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--text-light);
+}
+
+.list-box li {
+  margin-bottom: 6px;
+}
+
+/* Try On State inside Stage */
+.tryon-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 300px;
+  text-align: center;
+  border: 2px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  color: var(--text-dim);
+  padding: 2rem;
+}
+
+.tryon-placeholder span.icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+  opacity: 0.5;
+}
+
+/* ============================================================
+   ADVANCED LOGO & TEXT ANIMATIONS
+   ============================================================ */
+
+/* Hacker Cursor Blink */
+.cursor-blink {
+  animation: blink 1s step-end infinite;
+  color: var(--primary-color);
+  font-weight: 300;
+  margin-left: 2px;
+}
+
+@keyframes blink {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+
+/* Kinetic Hover Morph for Logo */
+.kinetic-logo {
+  display: inline-block;
+  transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+  letter-spacing: -0.5px;
+  text-shadow: none;
+}
+
+.kinetic-logo:hover {
+  letter-spacing: 3px;
+  color: var(--primary-color) !important;
+  text-shadow: 0 0 15px var(--primary-color), 0 0 30px var(--secondary-color);
+  transform: scale(1.05);
 }

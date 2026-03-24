@@ -83,62 +83,63 @@ function Upload() {
     return (
         <div>
             {/* ── DROP ZONE ── */}
-            <div
-                className={`dropzone ${dragging ? "dragging" : ""}`}
-                style={{ maxWidth: "620px", margin: "0 auto" }}
-                onClick={() => !preview && fileInputRef.current.click()}
-                onDragOver={handleDragOver}
-                onDragLeave={handleDragLeave}
-                onDrop={handleDrop}
-            >
-                <input
-                    type="file"
-                    ref={fileInputRef}
-                    onChange={handleFileChange}
-                    style={{ display: "none" }}
-                    accept="image/*"
-                />
+            {!result && !loading && (
+                <div
+                    className={`dropzone advanced ${dragging ? "dragging" : ""}`}
+                    style={{ maxWidth: "620px", margin: "0 auto" }}
+                    onClick={() => !preview && fileInputRef.current.click()}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                >
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={handleFileChange}
+                        style={{ display: "none" }}
+                        accept="image/*"
+                    />
 
-                {preview ? (
-                    <div className="preview-wrapper">
-                        <img src={preview} alt="Preview" />
-                        <button className="preview-remove" onClick={clearFile} title="Remove image">✕</button>
-                    </div>
-                ) : (
-                    <div className="upload-placeholder">
-                        <span className="upload-icon">📸</span>
-                        <p className="upload-hint">
-                            <strong>Drag & drop</strong> your photo here, or{" "}
-                            <strong>click to browse</strong>
-                        </p>
-                        <p className="upload-sub">Full-body photo recommended · JPEG, PNG, WEBP</p>
-                    </div>
-                )}
-            </div>
+                    {preview ? (
+                        <div className="preview-wrapper">
+                            <img src={preview} alt="Preview" />
+                            <button className="preview-remove" onClick={clearFile} title="Remove image">✕</button>
+                        </div>
+                    ) : (
+                        <div className="upload-placeholder">
+                            <span className="upload-icon">📸</span>
+                            <p className="upload-hint">
+                                <strong>Drag & drop</strong> your photo here, or{" "}
+                                <strong>click to browse</strong>
+                            </p>
+                            <p className="upload-sub">Full-body photo recommended · JPEG, PNG, WEBP</p>
+                        </div>
+                    )}
+                </div>
+            )}
 
             {/* File name + size */}
-            {file && !loading && (
+            {file && !loading && !result && (
                 <p className="upload-file-info">
                     📎 {file.name} &nbsp;·&nbsp; {formatBytes(file.size)}
                 </p>
             )}
 
-            {/* ── LOADING STATE ── */}
-            {loading ? (
+            {/* ── LOADING STATE WITH AI SCANNER ── */}
+            {loading && (
                 <div className="loader-overlay" style={{ marginTop: "2rem" }}>
                     <div className="spinner-ring" />
-                    <p className="loader-status">{STATUS_STEPS[statusIdx]}</p>
-                    <div className="skeleton-grid" style={{ width: "100%", maxWidth: "860px" }}>
-                        {[1, 2, 3].map((i) => (
-                            <div className="skeleton-card" key={i}>
-                                <div className="skeleton-img" />
-                                <div className="skeleton-text" />
-                                <div className="skeleton-text-sm" />
-                            </div>
-                        ))}
-                    </div>
+                    <p className="loader-status" style={{ fontSize: "1.2rem", color: "var(--primary-color)" }}>{STATUS_STEPS[statusIdx]}</p>
+
+                    {preview && (
+                        <div className="ai-scanner-overlay" style={{ marginTop: "2rem", maxWidth: "400px", margin: "2rem auto", borderRadius: "16px", overflow: "hidden", border: "2px solid var(--primary-color)" }}>
+                            <img src={preview} alt="Scanning" style={{ width: "100%", height: "auto", display: "block", filter: "brightness(0.7) contrast(1.1)" }} />
+                        </div>
+                    )}
                 </div>
-            ) : (
+            )}
+
+            {!loading && !result && (
                 <div style={{ marginTop: "24px", textAlign: "center" }}>
                     <button
                         onClick={handleUpload}
@@ -151,7 +152,14 @@ function Upload() {
                 </div>
             )}
 
-            {result && !loading && <ResultCard result={result} />}
+            {result && !loading && (
+                <div className="fade-in">
+                    <button onClick={clearFile} className="btn-secondary" style={{ marginBottom: "1rem" }}>
+                        ← Start Over
+                    </button>
+                    <ResultCard result={result} userPhotoFile={file} previewUrl={preview} />
+                </div>
+            )}
         </div>
     );
 }

@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { NavLink } from "react-router-dom";
+import TypewriterText from "./TypewriterText";
 
 export default function Navbar({ theme, toggleTheme }) {
     return (
         <nav className="navbar">
             <NavLink to="/" className="navbar-brand">
-                WearWisely
+                <TypewriterText text="WearWisely" speed={100} />
             </NavLink>
 
             <div className="navbar-links">

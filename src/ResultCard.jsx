@@ -1,4 +1,6 @@
-import { useState } from "react";
+import React, { useState } from "react";
+import axios from "axios";
+import Tilt from "react-parallax-tilt";
 import BodyTypeCard from "./BodyTypeCard";
 
 /* ── Occasion colour map ── */
@@ -91,10 +93,43 @@ function LowConfidenceBanner() {
 }
 
 /* ── Main ResultCard ── */
-function ResultCard({ result }) {
+const DOS_DONTS = {
+    ectomorph: { dos: ["Layering to add bulk", "Horizontal stripes", "Structured jackets", "Thick fabrics"], donts: ["Oversized, baggy clothes", "Vertical stripes", "Skinny fits", "Monochromatic dark outfits"] },
+    endomorph: { dos: ["Vertical stripes", "Darker colors", "V-neck shirts", "Well-tailored straight fits"], donts: ["Horizontal stripes", "Heavy, bulky fabrics", "Tight clothing", "Loud patterns"] },
+    mesomorph: { dos: ["Fitted shirts", "Athletic cuts", "V-necks and crew necks", "Straight leg trousers"], donts: ["Excessively baggy clothes", "Super skinny fits", "Ill-fitting shoulders", "Overly tight shirts"] }
+};
+
+function ResultCard({ result, userPhotoFile, previewUrl }) {
     const [activeOccasion, setActiveOccasion] = useState("All");
+    const [activeTryOn, setActiveTryOn] = useState(null);
 
     if (!result) return null;
+
+    const handleTryOn = async (item) => {
+        if (!userPhotoFile || !item.image) return;
+
+        // Scroll mobile users to the right panel slightly
+        if (window.innerWidth < 900) {
+            setTimeout(() => {
+                document.getElementById("vfr-stage")?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }, 100);
+        }
+
+        setActiveTryOn({ item, loading: true, image: null });
+
+        try {
+            const formData = new FormData();
+            formData.append("user_image", userPhotoFile);
+            formData.append("garm_url", item.image);
+
+            const res = await axios.post("http://127.0.0.1:8000/try-on", formData);
+            setActiveTryOn({ item, loading: false, image: res.data.image_base64 });
+        } catch (e) {
+            console.error(e);
+            alert("Try-On failed: " + (e.response?.data?.detail || e.message));
+            setActiveTryOn({ item, loading: false, image: null });
+        }
+    };
 
     const recs = result.recommendations?.men ?? [];
     const outfits = result.recommendations?.outfits ?? [];
@@ -107,11 +142,11 @@ function ResultCard({ result }) {
     const lowConf = result.confidence < 0.60;
 
     return (
-        <div className="glass-card fade-in" style={{ maxWidth: "960px", margin: "40px auto", textAlign: "left" }}>
+        <div className="glass-card fade-in advanced-dashboard" style={{ maxWidth: "1400px", width: "95%", margin: "40px auto", textAlign: "left" }}>
 
             {/* ── HEADER ── */}
             <div className="result-header">
-                <h2 style={{ margin: 0, fontSize: "clamp(1.4rem, 3vw, 2rem)" }}>
+                <h2 style={{ margin: 0, fontSize: "clamp(1.4rem, 3vw, 2.5rem)", letterSpacing: "-0.5px" }}>
                     Body Type:{" "}
                     <span className="text-gradient" style={{ textTransform: "capitalize" }}>
                         {result.body_type}
@@ -125,73 +160,161 @@ function ResultCard({ result }) {
 
             {/* ── BODY TYPE CARDS ── */}
             <div style={{ marginBottom: "2rem" }}>
-                <h3 style={{ color: "var(--text-light)", marginBottom: "1rem" }}>Body Type Overview</h3>
+                <h3 style={{ color: "var(--text-light)", marginBottom: "1rem", display: "flex", alignItems: "center", gap: "10px" }}>
+                    <span style={{ color: 'var(--primary-color)' }}>✦</span> Body Type Analysis
+                </h3>
                 <BodyTypeCard activeType={result.body_type} />
-                {result.description && (
-                    <ul style={{ color: "var(--text-dim)", lineHeight: "1.7", fontSize: "0.95rem", paddingLeft: "1.2rem" }}>
-                        {result.description.map((desc, i) => (
-                            <li key={i} style={{ marginBottom: "6px" }}>{desc}</li>
-                        ))}
-                    </ul>
+
+                {/* Advanced Dos and Donts Grid */}
+                {DOS_DONTS[result.body_type?.toLowerCase()] && (
+                    <div className="dos-donts-grid fade-in">
+                        <div className="list-box dos">
+                            <h4>✓ What to Wear (Do's)</h4>
+                            <ul>
+                                {DOS_DONTS[result.body_type.toLowerCase()].dos.map((rule, i) => <li key={i}>{rule}</li>)}
+                            </ul>
+                        </div>
+                        <div className="list-box donts">
+                            <h4>✕ What to Avoid (Don'ts)</h4>
+                            <ul>
+                                {DOS_DONTS[result.body_type.toLowerCase()].donts.map((rule, i) => <li key={i}>{rule}</li>)}
+                            </ul>
+                        </div>
+                    </div>
                 )}
             </div>
 
-            {/* ── OCCASION FILTER ── */}
-            {occasions.length > 1 && (
-                <div className="filter-section">
-                    <p className="filter-label">Filter by Occasion</p>
-                    <div className="chip-row">
-                        {occasions.map((occ) => (
-                            <button
-                                key={occ}
-                                className={`chip ${activeOccasion === occ ? "active" : ""}`}
-                                onClick={() => setActiveOccasion(occ)}
-                                style={activeOccasion !== occ && OCCASION_COLOR[occ]
-                                    ? { "--chip-hover": OCCASION_COLOR[occ] }
-                                    : {}}
-                            >
-                                {occ}
-                            </button>
-                        ))}
+            {/* ── VIRTUAL FITTING ROOM SPLIT LAYOUT ── */}
+            <div className="vfr-container">
+                {/* LEFT SIDE: PRODUCTS AND FILTERS */}
+                <div className="vfr-left">
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: "1rem", marginBottom: "0.5rem" }}>
+                        <h3 style={{ color: "var(--text-light)", margin: 0, display: "flex", alignItems: "center", gap: "10px" }}>
+                            <span style={{ color: 'var(--primary-color)' }}>✦</span> Recommended Styles
+                        </h3>
+                        {occasions.length > 1 && (
+                            <div className="chip-row" style={{ overflowX: "auto", paddingBottom: "4px" }}>
+                                {occasions.map((occ) => (
+                                    <button
+                                        key={occ}
+                                        className={`chip ${activeOccasion === occ ? "active" : ""}`}
+                                        onClick={() => setActiveOccasion(occ)}
+                                        style={activeOccasion !== occ && OCCASION_COLOR[occ] ? { "--chip-hover": OCCASION_COLOR[occ] } : {}}
+                                    >
+                                        {occ}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
                     </div>
-                </div>
-            )}
 
-            {/* ── PRODUCT GRID ── */}
-            <div>
-                <h3 style={{ color: "var(--text-light)", marginBottom: "1.2rem" }}>
-                    Recommended Styles
-                    {activeOccasion !== "All" && (
-                        <span style={{ fontSize: "0.85rem", color: "var(--text-dim)", fontWeight: 400, marginLeft: "10px" }}>
-                            — {activeOccasion}
-                        </span>
+                    {filteredRecs.length === 0 ? (
+                        <p style={{ color: "var(--text-dim)" }}>No items for this occasion. Try "All".</p>
+                    ) : (
+                        <div className="product-grid" style={{ gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))" }}>
+                            {filteredRecs.map((item, index) => {
+                                const isProcessing = activeTryOn?.item?.item === item.item && activeTryOn.loading;
+                                const isCurrentlyOnStage = activeTryOn?.item?.item === item.item && !activeTryOn.loading;
+
+                                return (
+                                    <Tilt
+                                        key={index}
+                                        className="product-card item-slide-in"
+                                        style={{ animationDelay: `${index * 0.05}s` }}
+                                        glareEnable={true}
+                                        glareMaxOpacity={0.15}
+                                        glarePosition="all"
+                                        tiltMaxAngleX={4}
+                                        tiltMaxAngleY={4}
+                                        scale={1.02}
+                                        transitionSpeed={1500}
+                                    >
+                                        <ProductImage src={item.image} alt={item.item} />
+                                        <div className="product-info">
+                                            {item.occasion && (
+                                                <span className="occasion-tag">{item.occasion}</span>
+                                            )}
+                                            <h4>{item.item}</h4>
+                                            <div className="shop-btns" style={{ marginBottom: "8px" }}>
+                                                <button
+                                                    className="shop-btn"
+                                                    style={{
+                                                        background: isCurrentlyOnStage ? 'transparent' : 'var(--accent-gradient)',
+                                                        color: isCurrentlyOnStage ? 'var(--primary-color)' : 'white',
+                                                        border: isCurrentlyOnStage ? '2px solid var(--primary-color)' : 'none',
+                                                        cursor: isProcessing ? 'wait' : 'pointer',
+                                                        width: '100%',
+                                                        opacity: isProcessing ? 0.7 : 1,
+                                                        fontWeight: isCurrentlyOnStage ? 'bold' : 'normal'
+                                                    }}
+                                                    onClick={() => handleTryOn(item)}
+                                                    disabled={isProcessing}
+                                                >
+                                                    {isProcessing ? "✨ Loading Room..." : isCurrentlyOnStage ? "👕 In Fitting Room" : "👕 Try It On"}
+                                                </button>
+                                            </div>
+                                            <div className="shop-btns">
+                                                <a href={item.amazon} target="_blank" rel="noopener noreferrer" className="shop-btn amazon">🛒 Amazon</a>
+                                                <a href={item.flipkart} target="_blank" rel="noopener noreferrer" className="shop-btn flipkart">🛍 Flipkart</a>
+                                            </div>
+                                        </div>
+                                    </Tilt>
+                                );
+                            })}
+                        </div>
                     )}
-                </h3>
-                {filteredRecs.length === 0 ? (
-                    <p style={{ color: "var(--text-dim)" }}>No items for this occasion. Try "All".</p>
-                ) : (
-                    <div className="product-grid">
-                        {filteredRecs.map((item, index) => (
-                            <div key={index} className="product-card">
-                                <ProductImage src={item.image} alt={item.item} />
-                                <div className="product-info">
-                                    {item.occasion && (
-                                        <span className="occasion-tag">{item.occasion}</span>
-                                    )}
-                                    <h4>{item.item}</h4>
-                                    <div className="shop-btns">
-                                        <a href={item.amazon} target="_blank" rel="noopener noreferrer" className="shop-btn amazon">
-                                            🛒 Amazon
-                                        </a>
-                                        <a href={item.flipkart} target="_blank" rel="noopener noreferrer" className="shop-btn flipkart">
-                                            🛍 Flipkart
-                                        </a>
-                                    </div>
+                </div>
+
+                {/* RIGHT SIDE: STICKY VIRTUAL STAGE */}
+                <div className="vfr-right" id="vfr-stage" style={{ maxHeight: "calc(100vh - 40px)", overflowY: "auto", paddingBottom: "20px" }}>
+                    <Tilt
+                        className="stage-card fade-in premium-stage"
+                        style={{ animationDelay: "0.2s" }}
+                        glareEnable={true}
+                        glareMaxOpacity={0.08}
+                        glarePosition="all"
+                        tiltMaxAngleX={2}
+                        tiltMaxAngleY={2}
+                        scale={1.01}
+                        transitionSpeed={2500}
+                    >
+                        <div className="stage-header" style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                            <span>✨ Virtual Fitting Room</span>
+                            {/* TINY ORIGINAL THUMBNAIL */}
+                            {previewUrl && (
+                                <div className="original-thumbnail" title="Your Original Photo" style={{ border: "2px solid rgba(255,255,255,0.2)", borderRadius: "8px", overflow: "hidden", width: "60px", height: "80px", flexShrink: 0, background: "#000" }}>
+                                    <img src={previewUrl} alt="Original" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                                </div>
+                            )}
+                        </div>
+
+                        {!activeTryOn ? (
+                            <div className="tryon-placeholder">
+                                <span className="icon">👕</span>
+                                <p><strong>Select a garment!</strong><br />Click "Try It On" on any recommended item to see how it looks on you.</p>
+                            </div>
+                        ) : activeTryOn.loading ? (
+                            <div className="tryon-placeholder ai-scanner-overlay" style={{ border: "2px solid var(--primary-color)" }}>
+                                <div className="spinner-ring" style={{ width: "40px", height: "40px", borderTopColor: "var(--primary-color)" }}></div>
+                                <p style={{ color: "var(--primary-color)", marginTop: "1rem", fontWeight: "bold" }}>AI is tailoring your outfit...</p>
+                                <p style={{ fontSize: "0.85rem", opacity: 0.8 }}>This takes 15-30 seconds.</p>
+                            </div>
+                        ) : activeTryOn.image ? (
+                            <div className="fade-in">
+                                <img src={activeTryOn.image} alt="Try On Result" style={{ width: "100%", borderRadius: "12px", display: "block", border: "1px solid rgba(255,255,255,0.1)" }} />
+                                <div style={{ marginTop: "1rem", textAlign: "center" }}>
+                                    <p style={{ margin: "0 0 0.5rem 0", fontWeight: "bold", color: "var(--text-light)" }}>Now wearing: {activeTryOn.item.item}</p>
+                                    <p style={{ margin: 0, fontSize: "0.85rem", color: "var(--text-dim)" }}>This is an AI-generated preview.</p>
                                 </div>
                             </div>
-                        ))}
-                    </div>
-                )}
+                        ) : (
+                            <div className="tryon-placeholder">
+                                <span className="icon">⚠️</span>
+                                <p>Failed to load image. Please try another garment.</p>
+                            </div>
+                        )}
+                    </Tilt>
+                </div>
             </div>
 
             {/* ── COMPLETE THE LOOK (Outfit Builder) ── */}
