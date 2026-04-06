@@ -53,9 +53,15 @@ def get_recommendations(body_type):
     }
 
     # ── HELPERS ───────────────────────────────────────────────────────────────
+    def get_category(name):
+        lower_name = name.lower()
+        if any(x in lower_name for x in ["jean", "trouser", "chino", "pant"]):
+            return "lower_body"
+        return "upper_body"
+
     def make_items(entries):
         return [{
-            "item": name, "image": img, "occasion": occ,
+            "item": name, "image": img, "occasion": occ, "category": get_category(name),
             "amazon":   f"{base_amazon}{urllib.parse.quote(name + ' for men')}",
             "flipkart": f"{base_flipkart}{urllib.parse.quote(name + ' for men')}",
         } for name, img, occ in entries]
