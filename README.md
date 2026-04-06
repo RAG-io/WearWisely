@@ -1,4 +1,4 @@
-# WearWisely 👔
+# WearWisely
 
 WearWisely is a smart, body-type-aware fashion recommendation engine built exclusively for men. By simply uploading a full-body photo, our fine-tuned Deep Learning model classifies your body type (Ectomorph, Mesomorph, or Endomorph) and provides 100% personalized clothing styles and complete outfit combinations curated for your unique physique.
 
