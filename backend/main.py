@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import shutil, os, uuid, base64, httpx
 from gradio_client import Client, handle_file
 
+from . import config
 from .predict import predict_body_type
 from .reccomender import get_recommendations
 
@@ -10,13 +11,13 @@ app = FastAPI(title="WearWisely API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
+    allow_origins=config.ALLOWED_ORIGINS,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-UPLOAD_FOLDER   = "temp"
+UPLOAD_FOLDER   = config.UPLOAD_FOLDER
 ALLOWED_TYPES   = {"image/jpeg", "image/png", "image/webp", "image/jpg"}
 MAX_SIZE_BYTES  = 15 * 1024 * 1024   # 15 MB
 
@@ -103,7 +104,7 @@ async def try_on(user_image: UploadFile = File(...), garm_url: str = Form(...), 
                 f.write(resp.content)
 
         # ── Perform Virtual Try-On via IDM-VTON API ─────────────────────
-        hf_token = os.getenv("HF_TOKEN")
+        hf_token = config.HF_TOKEN
         try:
             client = Client("yisol/IDM-VTON", token=hf_token) if hf_token else Client("yisol/IDM-VTON")
         except Exception as api_err:

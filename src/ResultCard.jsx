@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import axios from "axios";
 import Tilt from "react-parallax-tilt";
 import BodyTypeCard from "./BodyTypeCard";
+import { API_URL } from "./config";
 
 /* ── Occasion colour map ── */
 const OCCASION_COLOR = {
@@ -132,7 +133,7 @@ function ResultCard({ result, userPhotoFile, previewUrl }) {
             formData.append("garm_url", item.image);
             formData.append("category", item.category || "upper_body");
 
-            const res = await axios.post("http://127.0.0.1:8000/try-on", formData);
+            const res = await axios.post(`${API_URL}/try-on`, formData);
             setActiveTryOn({ item, loading: false, image: res.data.image_base64 });
         } catch (e) {
             console.error(e);

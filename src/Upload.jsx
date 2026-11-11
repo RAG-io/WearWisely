@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import axios from "axios";
 import ResultCard from "./ResultCard";
+import { API_URL } from "./config";
 
 const STATUS_STEPS = [
     "Uploading photo…",
@@ -67,7 +68,7 @@ function Upload() {
         }, 900);
 
         try {
-            const response = await axios.post("http://127.0.0.1:8000/predict", formData);
+            const response = await axios.post(`${API_URL}/predict`, formData);
             setResult(response.data);
         } catch (error) {
             console.error(error);

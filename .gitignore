@@ -40,3 +40,12 @@ env/
 backend/uploads/
 temp/
 dl/saved_model/
+
+# Keep example env files, ignore real ones
+.env.*
+!.env.example
+!.env.frontend.example
+
+# Local dev artifacts
+*.keras
+dl/saved_model/

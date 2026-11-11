@@ -24,3 +24,7 @@ pydantic==2.12.1
 
 # Utilities
 requests==2.32.5
+python-dotenv
+huggingface_hub
+httpx
+gradio_client
