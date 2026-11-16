@@ -35,6 +35,7 @@ env/
 .venv/
 .pytest_cache/
 *.pyc
+.env.frontend.example
 
 # User Uploads
 backend/uploads/
@@ -44,8 +45,20 @@ dl/saved_model/
 # Keep example env files, ignore real ones
 .env.*
 !.env.example
-!.env.frontend.example
 
 # Local dev artifacts
 *.keras
 dl/saved_model/
+
+# Local data and generated files
+dataset_quarantine/
+*.npz
+close_calls/
+dup_check*/
+dup_report.txt
+data/
+dl/cv_best.json
+dl/*.txt
+docs/
+tools/
+dl/v1/
