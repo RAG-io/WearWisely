@@ -1,0 +1,5 @@
+# Extra packages for the training / evaluation scripts in dl/ (not needed to run the web app).
+# scikit-learn brings in scipy automatically.
+-r ../requirements.txt
+scikit-learn==1.8.0
+opencv-python   # only for v1/augment_data.py
