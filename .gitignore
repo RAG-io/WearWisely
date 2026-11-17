@@ -3,18 +3,16 @@ logs
 *.log
 npm-debug.log*
 yarn-debug.log*
-yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-dataset/
-
+# Node / build
 node_modules
 dist
 dist-ssr
 *.local
 
-# Editor directories and files
+# Editor
 .vscode/*
 !.vscode/extensions.json
 .idea
@@ -25,8 +23,7 @@ dist-ssr
 *.sln
 *.sw?
 
-# Environment & Python
-.env
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
@@ -34,31 +31,28 @@ venv/
 env/
 .venv/
 .pytest_cache/
-*.pyc
-.env.frontend.example
 
-# User Uploads
-backend/uploads/
-temp/
-dl/saved_model/
-
-# Keep example env files, ignore real ones
+# Secrets:
+.env
 .env.*
 !.env.example
 
-# Local dev artifacts
-*.keras
-dl/saved_model/
-
-# Local data and generated files
+# Photos, models and generated data.
+dataset/
 dataset_quarantine/
+temp/
+/docs
+/tools
+backend/uploads/
+/data/
+/recommender/
+*.keras
 *.npz
 close_calls/
 dup_check*/
 dup_report.txt
-data/
+dl/saved_model/
 dl/cv_best.json
+dl/v1/*.md
 dl/*.txt
-docs/
-tools/
-dl/v1/
+!dl/requirements-train.txt
